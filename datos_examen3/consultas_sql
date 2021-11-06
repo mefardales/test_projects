@@ -1,0 +1,57 @@
+--  Mostrar el número de ventas de cada producto, ordenado de más a menos ventas.
+
+select count(ventas.producto) as "ventas", productos.nombre
+	from "Almacenes"."Venta" as ventas
+		inner join "Almacenes"."Productos" as productos
+			on ventas.producto = productos.producto
+				group by productos.nombre
+					order by count(productos.producto) desc;
+		
+
+/* Obtener un informe completo de ventas, indicando el nombre del 
+cajero que realizo la venta, nombre y precios de los productos 
+vendidos, y el piso en el que se encuentra la máquina registradora 
+donde se realizó la venta.*/
+
+select cajeros.nomapels, productos.nombre, productos.precio, maquinas.piso 
+	from "Almacenes"."Venta" as ventas
+		inner join "Almacenes"."Productos" as productos
+			on ventas.producto = productos.producto
+		inner join "Almacenes"."Cajeros" as cajeros
+			on ventas.cajero = cajeros.cajero
+		inner join "Almacenes"."Maquina_Registradora" as maquinas
+			on ventas.maquina = maquinas.maquina
+			
+-- Obtener las ventas totales realizadas en cada piso.
+
+select maquinas.piso, count(*) as ventas
+	from "Almacenes"."Venta" as ventas
+		inner join "Almacenes"."Productos" as productos
+			on ventas.producto = productos.producto
+		inner join "Almacenes"."Maquina_Registradora" as maquinas
+			on ventas.maquina = maquinas.maquina
+		group by maquinas.piso
+
+--Obtener el código y nombre de cada cajero junto con el importe total de sus ventas.
+
+select cajeros.cajero, cajeros.nomapels, count(*)
+	from "Almacenes"."Venta" as ventas
+		inner join "Almacenes"."Cajeros" as cajeros
+			on ventas.cajero = cajeros.cajero
+		group by cajeros.cajero
+	
+/* Obtener el código y nombre de aquellos cajeros que hayan realizado ventas 
+en pisos cuyas ventas totales sean inferiores a los 5000 pesos. */
+
+select cajeros.cajero, cajeros.nomapels
+	from "Almacenes"."Venta" as ventas
+		inner join "Almacenes"."Cajeros" as cajeros
+			on ventas.cajero = cajeros.cajero
+		where 5000 > (
+			select count(*)
+				from "Almacenes"."Venta" as ventas
+					inner join "Almacenes"."Cajeros" as cajeros
+						on ventas.cajero = cajeros.cajero
+		)
+		group by cajeros.cajero
+
